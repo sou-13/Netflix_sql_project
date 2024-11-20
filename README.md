@@ -94,18 +94,13 @@ WHERE release_year = 2020;
 ### 4. Find the Top 5 Countries with the Most Content on Netflix
 
 ```sql
-SELECT * 
-FROM
-(
-    SELECT 
-        UNNEST(STRING_TO_ARRAY(country, ',')) AS country,
-        COUNT(*) AS total_content
-    FROM netflix
-    GROUP BY 1
-) AS t1
-WHERE country IS NOT NULL
-ORDER BY total_content DESC
-LIMIT 5;
+SELECT
+        TRIM(UNNEST(STRING_TO_ARRAY(country, ','))) as new_country,
+		COUNT(show_id) as content
+FROM netflix
+GROUP BY new_country
+ORDER BY content desc
+LIMIT 5
 ```
 
 **Objective:** Identify the top 5 countries with the highest number of content items.
@@ -113,11 +108,12 @@ LIMIT 5;
 ### 5. Identify the Longest Movie
 
 ```sql
-SELECT 
-    *
+SELECT title, MAX(CAST(SUBSTRING(duration,1,POSITION(' ' IN duration)-1)as INT)) as maximun_lenght
 FROM netflix
-WHERE type = 'Movie'
-ORDER BY SPLIT_PART(duration, ' ', 1)::INT DESC;
+WHERE type = 'Movie' AND duration IS NOT NULL
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 1
 ```
 
 **Objective:** Find the movie with the longest duration.
